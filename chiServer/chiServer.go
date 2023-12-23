@@ -21,9 +21,11 @@ func StartServer() {
 	r.Get("/users/{}", users.GetUserByIdHandler)
 	r.Post("/users/{}", users.CreateUserHandler)
 
-	r.Get("/tasks", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("tasks"))
-	})
+	tasks := handlers.NewTasksHandler(services.NewTasksService())
+	r.Get("/tasks*", tasks.GetAllTasksHandler)
+	r.Post("/tasks*", tasks.CreateTaskHandler)
+	r.Get("/tasks/{}", tasks.GetTaskByIdHandler)
+	r.Get("/tasks/all*", tasks.GetUsersTasksHandler)
 
 	http.ListenAndServe(":3000", r)
 }

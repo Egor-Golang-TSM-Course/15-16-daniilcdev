@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"path"
 	"server-context/chiServer/services"
@@ -39,9 +38,18 @@ func (uh *UsersHandler) GetUserByIdHandler(w http.ResponseWriter, r *http.Reques
 	user, err := uh.us.GetUser(services.UserId(id))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
-	fmt.Fprint(w, user)
+	p, err := json.Marshal(user)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+
+	}
+
+	w.Write(p)
 }
 
 func (uh *UsersHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
