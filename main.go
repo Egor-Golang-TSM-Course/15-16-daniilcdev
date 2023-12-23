@@ -1,8 +1,7 @@
 package main
 
 import (
-	"context"
-	"server-context/notifications"
+	chiserver "server-context/chiServer"
 )
 
 func main() {
@@ -25,5 +24,8 @@ func main() {
 	// cancelcallstack.CallAndCancel(context.Background(), 100*time.Millisecond)
 
 	// task 3
-	notifications.SendNotifications(context.Background())
+	// notifications.SendNotifications(context.Background())
+
+	// task 4
+	chiserver.StartServer()
 }
