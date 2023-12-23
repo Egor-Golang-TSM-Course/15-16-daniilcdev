@@ -1,8 +1,10 @@
 package chiserver
 
 import (
+	"fmt"
 	"net/http"
 	"server-context/chiServer/handlers"
+	mw "server-context/chiServer/middleware"
 	"server-context/chiServer/services"
 	"time"
 
@@ -13,8 +15,9 @@ import (
 func StartServer() {
 	r := chi.NewRouter()
 
-	r.Use(middleware.Timeout(1 * time.Second))
 	r.Use(middleware.Logger)
+	r.Use(middleware.Timeout(1 * time.Second))
+	r.Use(mw.RandomSleep(0.3, 2*time.Second))
 
 	users := handlers.NewUsersHandler(services.NewUsersService())
 	r.Get("/users*", users.GetAllUsersHandler)
@@ -27,5 +30,6 @@ func StartServer() {
 	r.Get("/tasks/{}", tasks.GetTaskByIdHandler)
 	r.Get("/tasks/all*", tasks.GetUsersTasksHandler)
 
+	fmt.Println("starting chi server on port 3000...")
 	http.ListenAndServe(":3000", r)
 }

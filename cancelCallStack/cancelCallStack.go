@@ -39,7 +39,7 @@ func recursiveIncrement(parentCtx context.Context, step int, c *int) {
 	go recursiveIncrement(ctx, step+1, c)
 
 	<-ctx.Done()
-	if ctx.Err() != nil {
-		fmt.Printf("[depth=%d] stopped by cancel\n", step)
-	}
+	// if ctx.Err() != nil {
+	// 	fmt.Printf("[depth=%d] stopped by cancel\n", step)
+	// }
 }
