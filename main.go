@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	cancelwebrequest "server-context/cancelWebRequest"
+	cancelcallstack "server-context/cancelCallStack"
 	"time"
 )
 
@@ -16,9 +16,11 @@ func main() {
 		"https://linkedin.com",
 	}
 
-	// task 1
+	task 1
 	cancelwebrequest.RequestUrlsWithTimeout(
 		context.Background(),
 		urls,
 		400*time.Millisecond)
+
+	cancelcallstack.CallAndCancel(context.Background(), 100*time.Millisecond)
 }
