@@ -16,28 +16,28 @@ type UserDto struct {
 }
 
 type UsersService struct {
-	users map[UserId]User
+	storage KeyValueStorage[UserId, User]
 }
 
-func NewUsersService() *UsersService {
+func NewUsersService(storage KeyValueStorage[UserId, User]) *UsersService {
 	return &UsersService{
-		users: make(map[UserId]User),
+		storage: storage,
 	}
 }
 
 func (ur *UsersService) CreateUser(name string) (UserId, error) {
 	userId := UserId(randomString(12))
-	if _, exists := ur.users[userId]; exists {
+	if _, exists := ur.storage.GetValue(userId); exists {
 		return "", fmt.Errorf("error: user already exists")
 	}
 
-	ur.users[userId] = User{name: name}
+	ur.storage.SetValue(userId, User{name: name})
 
 	return userId, nil
 }
 
 func (ur *UsersService) GetUser(id UserId) (string, error) {
-	user, exists := ur.users[id]
+	user, exists := ur.storage.GetValue(id)
 	if !exists {
 		return "", fmt.Errorf("error: user does not exist")
 	}
@@ -46,9 +46,10 @@ func (ur *UsersService) GetUser(id UserId) (string, error) {
 }
 
 func (ur *UsersService) GetAllUsers() ([]UserDto, error) {
-	userNames := make([]UserDto, 0, len(ur.users))
+	all := ur.storage.All()
+	userNames := []UserDto{}
 
-	for k, v := range ur.users {
+	for k, v := range all {
 		userNames = append(userNames, UserDto{
 			Id:   k,
 			Name: v.name,

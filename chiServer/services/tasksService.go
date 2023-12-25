@@ -15,33 +15,33 @@ type TaskDto struct {
 }
 
 type TasksService struct {
-	tasks map[OwnerId][]task
+	storage KeyValueStorage[OwnerId, []Task]
 }
 
-type task struct {
+type Task struct {
 	id          string
 	title       string
 	description string
 }
 
-func NewTasksService() *TasksService {
+func NewTasksService(storage KeyValueStorage[OwnerId, []Task]) *TasksService {
 	return &TasksService{
-		tasks: make(map[OwnerId][]task),
+		storage: storage,
 	}
 }
 
 func (ts *TasksService) CreateTask(ownerId OwnerId,
 	title string,
 	description string) (TaskDto, error) {
-	pool, ok := ts.tasks[ownerId]
+	pool, ok := ts.storage.GetValue(ownerId)
 
 	if !ok {
-		pool = make([]task, 0, 4)
+		pool = make([]Task, 0, 4)
 	}
 
-	newTask := task{id: randomString(6), title: title, description: description}
+	newTask := Task{id: randomString(6), title: title, description: description}
 	pool = append(pool, newTask)
-	ts.tasks[ownerId] = pool
+	ts.storage.SetValue(ownerId, pool)
 
 	return TaskDto{
 		Id:          newTask.id,
@@ -52,8 +52,10 @@ func (ts *TasksService) CreateTask(ownerId OwnerId,
 }
 
 func (ts *TasksService) GetAllTasks() ([]TaskDto, error) {
+	all := ts.storage.All()
+
 	r := make([]TaskDto, 0, 4)
-	for ownerId, pool := range ts.tasks {
+	for ownerId, pool := range all {
 		for _, v := range pool {
 			r = append(r, TaskDto{
 				Id:          v.id,
@@ -68,7 +70,9 @@ func (ts *TasksService) GetAllTasks() ([]TaskDto, error) {
 }
 
 func (ts *TasksService) GetTask(id string) (TaskDto, error) {
-	for ownerId, pool := range ts.tasks {
+	all := ts.storage.All()
+
+	for ownerId, pool := range all {
 		for _, task := range pool {
 			if task.id != id {
 				continue
@@ -87,7 +91,7 @@ func (ts *TasksService) GetTask(id string) (TaskDto, error) {
 }
 
 func (ts *TasksService) GetTasksByOwner(ownerId OwnerId) ([]TaskDto, error) {
-	userTasks, ok := ts.tasks[ownerId]
+	userTasks, ok := ts.storage.GetValue(ownerId)
 
 	if !ok {
 		return nil, errors.New("owner not found")

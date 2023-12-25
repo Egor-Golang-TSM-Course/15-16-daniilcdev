@@ -19,12 +19,20 @@ func StartServer() {
 	r.Use(middleware.Timeout(1 * time.Second))
 	r.Use(mw.RandomSleep(0.3, 2*time.Second))
 
-	users := handlers.NewUsersHandler(services.NewUsersService())
+	users := handlers.NewUsersHandler(
+		services.NewUsersService(
+			&services.InMemoryStorage[services.UserId, services.User]{}),
+	)
+
 	r.Get("/users*", users.GetAllUsersHandler)
 	r.Get("/users/{}", users.GetUserByIdHandler)
 	r.Post("/users/{}", users.CreateUserHandler)
 
-	tasks := handlers.NewTasksHandler(services.NewTasksService())
+	tasks := handlers.NewTasksHandler(
+		services.NewTasksService(
+			&services.InMemoryStorage[services.OwnerId, []services.Task]{}),
+	)
+
 	r.Get("/tasks*", tasks.GetAllTasksHandler)
 	r.Post("/tasks*", tasks.CreateTaskHandler)
 	r.Get("/tasks/{}", tasks.GetTaskByIdHandler)
