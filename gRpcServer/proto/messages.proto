@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package protoGenerated;
+
+option go_package = "../protoGenerated";
+
+message FileData {
+    bytes data = 1;
+}
+
+message LoadFileMessage {
+    string name = 1;
+}
+
+message SaveFileMessage {
+    string name = 1;
+    bytes data = 2;
+}
+
+enum Result {
+    Success = 0;
+    Failed = 1;
+}
+
+message OperationResultMessage{
+    Result result = 1;
+}

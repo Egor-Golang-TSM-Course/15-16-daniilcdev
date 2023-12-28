@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package protoGenerated;
+
+import "messages.proto";
+
+option go_package = "../protoGenerated";
+
+service FileStorageService {
+    rpc Get(LoadFileMessage) returns (FileData) {};
+    rpc Save(SaveFileMessage) returns (OperationResultMessage) {};
+}
