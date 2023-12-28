@@ -5,6 +5,7 @@ import (
 	cancelcallstack "server-context/cancelCallStack"
 	cancelwebrequest "server-context/cancelWebRequest"
 	chiserver "server-context/chiServer"
+	grpcserver "server-context/gRpcServer"
 	"server-context/notifications"
 	"time"
 )
@@ -34,4 +35,7 @@ func main() {
 
 	// task 4
 	chiserver.StartServer(ctx, 10*time.Second)
+
+	// task 5
+	grpcserver.StartServer( /*ctx, 10*time.Second*/ )
 }
