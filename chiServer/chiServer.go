@@ -1,7 +1,9 @@
 package chiserver
 
 import (
+	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"server-context/chiServer/handlers"
 	mw "server-context/chiServer/middleware"
@@ -12,7 +14,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 )
 
-func StartServer() {
+func StartServer(parentContext context.Context, lifeTime time.Duration) {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
@@ -39,5 +41,24 @@ func StartServer() {
 	r.Get("/tasks/all*", tasks.GetUsersTasksHandler)
 
 	fmt.Println("starting chi server on port 3000...")
-	http.ListenAndServe(":3000", r)
+
+	s := &http.Server{Addr: ":3000", Handler: r}
+
+	ctx, cancel := context.WithTimeout(parentContext, lifeTime)
+	defer cancel()
+	s.BaseContext = func(net.Listener) context.Context {
+		return ctx
+	}
+
+	go func() {
+		<-ctx.Done()
+		err := s.Shutdown(ctx)
+		if err != nil {
+			fmt.Printf("error: server shutdown failed - %v\n", err)
+		}
+	}()
+
+	if err := s.ListenAndServe(); err != nil {
+		fmt.Printf("server shutdown: %v\n", err)
+	}
 }

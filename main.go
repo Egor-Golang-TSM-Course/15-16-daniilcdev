@@ -33,5 +33,5 @@ func main() {
 	notifications.SendNotifications(ctx)
 
 	// task 4
-	chiserver.StartServer()
+	chiserver.StartServer(ctx, 10*time.Second)
 }
